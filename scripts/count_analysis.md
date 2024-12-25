@@ -129,32 +129,43 @@ colSums(countData)
 
 
 ```R
-par(mar=c(8,4,4,1)+0.5)
+# Open a png device in the desired directory (relative path)
+png("../output/plots/feature_counts.png")
 
+# Set margins
+par(mar=c(8,4,4,1) + 0.5)
+
+# Create the barplot
 barplot(colSums(countData)/1e6, 
         col="skyblue",
         main="Feature Counts (in Millions)", 
         ylab="Read Counts (Millions)", 
+        xlab="Samples",
         cex.axis=1.5,   
         cex.lab=1.5,    
         cex.names=1.5,  
         ylim=c(0, 50))   # Set y-axis limit to 50
 
+# Close the device to finalize the Plot
+dev.off()
+
+
 ```
 
 
-    
-![png](output_15_0.png)
-    
+<strong>pdf:</strong> 2
 
 
 
 ```R
 # Histogram to see the value distribution for each samples
 
+## Open a png device in the desired directory (relative path)
+png("../output/plots/value_dis.png")
+
 par(mfrow=c(2, 2))
 
-# Create histograms for each sample
+## Create histograms for each sample
 hist(countData$tr721, br=10, main="Sample tr721", xlab="Counts", xlim=c(0, 500000))
 hist(countData$tr722, br=10, main="Sample tr722", xlab="Counts", xlim=c(0, 500000))
 hist(countData$con723, br=10, main="Sample con723", xlab="Counts", xlim=c(0, 500000))
@@ -163,12 +174,13 @@ hist(countData$con725, bre=10, main="Sample con725", xlab="Counts", xlim=c(0, 50
 # Reset the plotting layout to default
 par(mfrow=c(1, 1))
 
+# Close the device to finalize the Plot
+dev.off()
+
 ```
 
 
-    
-![png](output_16_0.png)
-    
+<strong>pdf:</strong> 2
 
 
 
@@ -181,6 +193,8 @@ logCount = log2(1 + countData)
 
 ```R
 # Histogram to see the value distribution for each samples
+
+png("../output/plots/log_dis.png")
 par(mfrow=c(2, 2))
 
 # Create histograms for each sample
@@ -191,12 +205,12 @@ plot(logCount[,2], logCount[,3])
 
 # Reset the plotting layout to default
 par(mfrow=c(1, 1))
+
+dev.off()
 ```
 
 
-    
-![png](output_18_0.png)
-    
+<strong>pdf:</strong> 2
 
 
 ### Loading in DEseq 
@@ -344,6 +358,8 @@ pcaData$Sample <- rownames(pcaData)
 # Plot PCA with publication-quality style and additional space for points
 library(ggplot2)
 
+png("../output/plots/pca.png")
+
 ggplot(pcaData, aes(x = PC1, y = PC2, color = sample_type, label = Sample)) +
   geom_point(size = 4, alpha = 0.7, shape = 16) +  # Larger, semi-transparent points
   geom_text(vjust = -0.5, size = 5, fontface = "italic", color = "black") +  # Larger labels with italic style
@@ -361,6 +377,8 @@ ggplot(pcaData, aes(x = PC1, y = PC2, color = sample_type, label = Sample)) +
   ) +
   coord_cartesian(clip = "off")  # Allow points outside the default plot area
 
+dev.off()
+
 ```
 
     using ntop=500 top features by variance
@@ -368,9 +386,7 @@ ggplot(pcaData, aes(x = PC1, y = PC2, color = sample_type, label = Sample)) +
 
 
 
-    
-![png](output_31_1.png)
-    
+<strong>pdf:</strong> 2
 
 
 ### Custom Functions:
@@ -476,6 +492,8 @@ groups.colors = rainbow(length(unique(groups)))
 
 
 ```R
+png("../output/plots/heatmap.png")
+
 lmat = rbind(c(5, 4), c(0, 1), c(3, 2)) # defines layout
 lwid = c(1.5, 4)                        # width of plot
 lhei = c(1, 0.2, 4)                       # height of plot
@@ -490,12 +508,12 @@ heatmap.2(x, distfun = dist2, hclustfun = hclust2,
           srtCol = 45,                     # Rotate x-axis labels
           lmat = lmat, lwid = lwid, lhei = lhei)
 
+dev.off()
+
 ```
 
 
-    
-![png](output_45_0.png)
-    
+<strong>pdf:</strong> 2
 
 
 ## DESeq2 SDEG Analysis:
@@ -557,20 +575,24 @@ summary(res)
 
 
 ```R
+png("../output/plots/ma_plot.png")
+
 res=results(dds, lfcThreshold=0.01)
 DESeq2::plotMA(res,ylim=c(-5,5))
+
+dev.off()
 ```
 
 
-    
-![png](output_51_0.png)
-    
+<strong>pdf:</strong> 2
 
 
 ### Volcano Plot:
 
 
 ```R
+png("../output/plots/volcano_plot.png")
+
 # Filter the dataset to remove rows with NA values in log2FoldChange or padj
 res1 <- as.data.frame(res) %>%
   filter(!is.na(log2FoldChange) & !is.na(padj)) %>%
@@ -603,27 +625,29 @@ ggplot(res1, aes(x = log2FoldChange, y = -log10(padj))) +
   geom_hline(yintercept = -log10(0.1), linetype = "dashed", color = "blue", linewidth = 0.7) +  # Significance threshold line
   geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "blue", linewidth = 0.7)  # Fold-change threshold lines
 
+dev.off()
+
 ```
 
 
-    
-![png](output_53_0.png)
-    
+<strong>pdf:</strong> 2
 
 
 ### Normalized Count Plot for the Top Gene
 
 
 ```R
+png("../output/plots/top_gene_norm_count_plot.png")
+
 res=res[order(abs(res$log2FoldChange),decreasing=TRUE),]
 topGene=rownames(res)[1]
 plotCounts(dds, gene=topGene, intgroup=c("sample_type"))
+
+dev.off()
 ```
 
 
-    
-![png](output_55_0.png)
-    
+<strong>pdf:</strong> 2
 
 
 ## GO ANALYSIS:
