@@ -1,5 +1,5 @@
 
-# Download raw files
+## Download raw files
 
     cd raw_data/
 
@@ -20,16 +20,9 @@
     mkdir -p ../working_data/initial_fastqc/
     fastqc */*.fastq -threads 20 --outdir ../working_data/initial_fastqc/
 
-# Based on the fastqc reports, no quality control is required !!
-# There is no presence of adapter sequences as well.
+    ### Based on the fastqc reports, no quality control is required !!
+    ### There is no presence of adapter sequences as well.
 
-## Adapter Trimming (SKIPPING FOR NOW AS FASTQC REPORT IS OKAY !!):
-
-    trimmomatic PE -phred33 \
-    input_R1.fastq.gz input_R2.fastq.gz \
-    output_forward_paired.fq.gz output_forward_unpaired.fq.gz \
-    output_reverse_paired.fq.gz output_reverse_unpaired.fq.gz \
-    ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:50
 
 ## Download Reference Transcriptome sequence:
         
@@ -46,7 +39,6 @@
 
 ### Alignment of RNA-seq reads to the reference transcriptome:
 
-    
     STAR --runThreadN 20 \
          --runMode genomeGenerate \
          --genomeDir star_index \
@@ -55,7 +47,6 @@
          --sjdbOverhang 149
          --genomeSAindexNbases 12
     
-
     mkdir star_mapped/
 
     for read1 in ../../raw_data/*/*_1.fastq;do
@@ -76,41 +67,49 @@
     ls -lh star_mapped/*.bam
 
     samtools quickcheck star_mapped/*.out.bam
-    samtools view -H star_mapped/SRR21091720_Aligned.sortedByCoord.out.bam
+    samtools view -H star_mapped/SRR21091725_Aligned.sortedByCoord.out.bam
     
 ## Gene Expression Quantificaction
 
-
-    mkdir -p ../../output/
+    mkdir -p ../../output/counts/
 
     ls star_mapped/*.bam
     
+    # iterating over all bam outputs to genarate feature count table:
+
     for bam in star_mapped/*.bam; do
         base=$(basename $bam '_Aligned.sortedByCoord.out.bam')
         echo $base
-        featureCounts -p -t exon -g gene_id --verbose -a Dro*.gtf -o ../../output/${base}_counts.txt $bam
+        featureCounts -p -t exon -g gene_id --verbose -a Dro*.gtf -o ../../output/counts/${base}_counts.txt $bam
     done
 
-    # worked for 5 samples, failed for 1:
+### Merge multiple feature count files into single csv file
     
-     featureCounts -p -t exon -g gene_id \
-    --verbose -a Dro*.gtf -o ../../output/read_counts_24.txt \
-    star_mapped/SRR21091724_Aligned.sortedByCoord.out.bam
-
-    head ../../output/*.txt.summary
-    head -n6 ../../output/*.txt
+    head ../../output/counts/*.txt.summary
+    head -n6 ../../output/counts/*.txt
 
 
     for file in ../../output/*_counts.txt; do
         base=$(basename $file _counts.txt)
-        awk 'NR > 2 {print $1, $7}' $file > ../../output/${base}_cleaned.txt
+        awk 'NR > 2 {print $1, $7}' $file > ../../output/counts/${base}_cleaned.txt
     done
 
+    
+    printf "id tr721 tr722 con723 con725\n" > ../../output/counts/merged_counts.csv
+    
+    paste ../../output/counts/*_cleaned.txt | awk '{print $1, $2, $4, $6, $8, $10, $12}' | sed 's/[[:space:]]*$//' >> ../../output/counts/merged_counts.csv
+    ## Here, I merged all files based on the values in first column (geneid). This approach works only if all samples have exactly same geneid present across all rows. For eg: FBgn0267431 if present in 2nd row of sample 1, it should be true for sample 2,3,4,etc. (random sample name used for example)
+    ## This was checked manually in excel, but can be done with pandas or dplyr as well.
+    
+    head -n4 ../../output/counts/merged_counts.csv
+    head -n4 merged_counts.csv
 
-    printf "#sample_id con720 con721 con722 tr723 tr725 \n" > ../../output/merged_counts.csv
+## Downstream Analysis with jupyter notebook
+    
+    cd ../../scripts/
+    jupyter-notebook
 
-    paste ../../output/*_cleaned.txt | awk '{print $1, $2, $4, $6, $8, $10, $12}' >> ../../output/merged_counts.csv
-    head -n4 ../../output/merged_counts.csv
+
 
 
 
