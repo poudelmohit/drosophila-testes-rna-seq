@@ -1,5 +1,5 @@
 
-# RNA-seq analysis of Drosophila melanogaster adult testes overexpressing microRNA-2b-1
+# RNA-seq analysis of *Drosophila melanogaster* adult testes overexpressing microRNA-2b-1
 
 ## Introduction
 
@@ -94,6 +94,6 @@ I would like to thank the authors of the original paper for their work, which se
 
 ## Final Note
 
-This project is just an attemp from a bioinformatics novice, performed out of curiosity. As such, it may contain erros or areas of improvement. Constructive feedbacks and suggestions are highly appreciated. Please feel free to [reach out to the author](https://poudelmohit.github.io/#contact) if you have any suggestions or even for a casual coffee chat.
+This project is just an attempt of a bioinformatics novice, performed out of curiosity. As such, it may contain erros or areas of improvement. Constructive feedbacks and suggestions are highly appreciated. Please feel free to [reach out to the author](https://poudelmohit.github.io/#contact) if you have any suggestions or even for a casual coffee chat.
 
 [**Complete GitHub Repository of the Project**](https://github.com/poudelmohit/drosophila-testes-rna-seq)
