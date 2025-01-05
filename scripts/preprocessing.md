@@ -88,7 +88,6 @@
     head ../../output/counts/*.txt.summary
     head -n6 ../../output/counts/*.txt
 
-
     for file in ../../output/*_counts.txt; do
         base=$(basename $file _counts.txt)
         awk 'NR > 2 {print $1, $7}' $file > ../../output/counts/${base}_cleaned.txt
@@ -98,7 +97,8 @@
     printf "id tr721 tr722 con723 con725\n" > ../../output/counts/merged_counts.csv
     
     paste ../../output/counts/*_cleaned.txt | awk '{print $1, $2, $4, $6, $8, $10, $12}' | sed 's/[[:space:]]*$//' >> ../../output/counts/merged_counts.csv
-    ## Here, I merged all files based on the values in first column (geneid). This approach works only if all samples have exactly same geneid present across all rows. For eg: FBgn0267431 if present in 2nd row of sample 1, it should be true for sample 2,3,4,etc. (random sample name used for example)
+
+    ## Here, I merged all files based on the values in the first column (geneid). This approach works only if all samples have exactly same geneid present across all rows. For eg: FBgn0267431 if present in 2nd row of sample 1, it should be true for sample 2,3,4,etc. (random sample name used for example)
     ## This was checked manually in excel, but can be done with pandas or dplyr as well.
     
     head -n4 ../../output/counts/merged_counts.csv
@@ -108,13 +108,4 @@
     
     cd ../../scripts/
     jupyter-notebook
-
-
-
-
-
-
-
-
-
         
